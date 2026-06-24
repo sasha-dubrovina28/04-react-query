@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import  { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 import { fetchMovies } from "../../services/movieService";
 
@@ -14,8 +14,8 @@ import ReactPaginateModule from "react-paginate";
 import type { ReactPaginateProps } from "react-paginate";
 import type { ComponentType } from "react";
 
-import css from "./App.module.css";
 import type { Movie } from "../../types/movie";
+import css from "./App.module.css";
 
 type ModuleWithDefault<T> = { default: T };
 
@@ -33,7 +33,7 @@ export default function App() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["movies", query, page],
     queryFn: () => fetchMovies(query, page),
-    enabled: query !== "",
+    enabled: query.trim() !== "",
   });
 
   const handleSearch = (value: string) => {
@@ -44,11 +44,30 @@ export default function App() {
   const movies: Movie[] = data?.results ?? [];
   const totalPages: number = data?.total_pages ?? 0;
 
+  if (!isLoading && query && movies.length === 0) {
+    toast.error("No movies found for your request.");
+  }
+
   return (
     <div className={css.app}>
       <Toaster position="top-right" />
 
       <SearchBar onSubmit={handleSearch} />
+
+      {/* PAGINATION TOP */}
+      {totalPages > 1 && (
+        <ReactPaginate
+          pageCount={totalPages}
+          pageRangeDisplayed={5}
+          marginPagesDisplayed={1}
+          onPageChange={({ selected }) => setPage(selected + 1)}
+          forcePage={page - 1}
+          containerClassName={css.pagination}
+          activeClassName={css.active}
+          nextLabel="→"
+          previousLabel="←"
+        />
+      )}
 
       {isLoading && <Loader />}
 
@@ -62,19 +81,6 @@ export default function App() {
         <MovieModal
           movie={selectedMovie}
           onClose={() => setSelectedMovie(null)}
-        />
-      )}
-      {totalPages > 1 && (
-        <ReactPaginate
-          pageCount={totalPages}
-          pageRangeDisplayed={5}
-          marginPagesDisplayed={1}
-          onPageChange={({ selected }) => setPage(selected + 1)}
-          forcePage={page - 1}
-          containerClassName={css.pagination}
-          activeClassName={css.active}
-          nextLabel="→"
-          previousLabel="←"
         />
       )}
     </div>
