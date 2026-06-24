@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import toast, { Toaster } from "react-hot-toast";
 
-import ReactPaginateModule from "react-paginate";
-import type { ReactPaginateProps } from "react-paginate";
-import type { ComponentType } from "react";
-
 import { fetchMovies } from "../../services/movieService";
+
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import Loader from "../Loader/Loader";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import MovieModal from "../MovieModal/MovieModal";
 import SearchBar from "../SearchBar/SearchBar";
+
+import ReactPaginateModule from "react-paginate";
+import type { ReactPaginateProps } from "react-paginate";
+import type { ComponentType } from "react";
 
 import type { Movie } from "../../types/movie";
 import css from "./App.module.css";
@@ -37,18 +38,18 @@ export default function App() {
   });
 
   const movies: Movie[] = data?.results ?? [];
-  const totalPages = data?.total_pages ?? 0;
-
-  useEffect(() => {
-    if (!isLoading && !isError && query.trim() !== "" && movies.length === 0) {
-      toast.error("No movies found for your request.");
-    }
-  }, [isLoading, isError, query, movies.length]);
+  const totalPages: number = data?.total_pages ?? 0;
 
   const handleSearch = (value: string) => {
     setQuery(value);
     setPage(1);
   };
+
+  useEffect(() => {
+    if (!isLoading && !isError && query && movies.length === 0) {
+      toast.error("No movies found for your request.");
+    }
+  }, [isLoading, isError, query, movies.length]);
 
   return (
     <div className={css.app}>
