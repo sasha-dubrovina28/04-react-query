@@ -30,11 +30,12 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["movies", query, page],
-    queryFn: () => fetchMovies(query, page),
-    enabled: query.trim() !== "",
-  });
+const { data, isLoading, isError } = useQuery({
+  queryKey: ["movies", query, page],
+  queryFn: () => fetchMovies(query, page),
+  enabled: query.trim() !== "",
+  placeholderData: (prev) => prev,
+});
 
   const handleSearch = (value: string) => {
     setQuery(value);
@@ -54,7 +55,6 @@ export default function App() {
 
       <SearchBar onSubmit={handleSearch} />
 
-      {/* PAGINATION TOP */}
       {totalPages > 1 && (
         <ReactPaginate
           pageCount={totalPages}
